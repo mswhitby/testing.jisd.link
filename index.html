@@ -191,7 +191,8 @@
 <script>
   // ======================================================
   // REPLACE THIS URL WITH YOUR APPS SCRIPT /exec URL
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFj5hfjmGJu7QUU4nTCgX3yZ68JfJpGKCfPahMJ0C9x3QlB9URMg_qjG6rrYyWAwe1UA/exec';
+  // const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFj5hfjmGJu7QUU4nTCgX3yZ68JfJpGKCfPahMJ0C9x3QlB9URMg_qjG6rrYyWAwe1UA/exec';
+  const APPS_SCRIPT_URL = 'https://us-central1-hall-pass-app-d6541.cloudfunctions.net/get_student_rooms_http';
   // ======================================================
 
   const searchBtn = document.getElementById('searchBtn');
@@ -231,11 +232,32 @@
     searchBtn.textContent = 'Searching...';
 
     // fetch() replaces google.script.run for standalone use
+    // fetch(`${APPS_SCRIPT_URL}?studentID=${encodeURIComponent(studentID)}`)
+    //   .then(res => res.json())
+    //  .then(data => onSuccess(data))
+    //  .catch(err => onFailure(err));
+// });
+
     fetch(`${APPS_SCRIPT_URL}?studentID=${encodeURIComponent(studentID)}`)
       .then(res => res.json())
-      .then(data => onSuccess(data))
-      .catch(err => onFailure(err));
-  });
+      .then(result => {
+      if (!result.success) {
+        if (result.error === "Student not found") {
+          onFailure("No test assignments found for this Student ID. Please check your number and try again.");
+        } else {
+          onFailure(result.error);
+        }
+        return;
+      }
+      const data = result.data;
+      onSuccess({
+        studentName: data.name,
+        studentID: data.studentId,
+        assignments: data.assignments
+      });
+    })
+    .catch(err => onFailure(err));
+
 
   function onSuccess(data) {
     hideMessages();
