@@ -231,13 +231,16 @@
       .then(res => res.json())
       .then(result => {
         if (!result.success) {
-          if (result.error === 'Student not found') {
-            onFailure('No test assignments found for this Student ID. Please check your number and try again.');
+          if (result.error === 'Student ID not found') {
+            onFailure('Student ID not found. Please check your number and try again.');
+          } else if (result.error === 'No upcoming tests found') {
+            onFailure('No upcoming test assignments found for your Student ID.');
           } else {
             onFailure(result.error);
           }
           return;
         }
+
         const data = result.data;
         onSuccess({
           studentName: data.name,
