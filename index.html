@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <base target="_top">
@@ -7,107 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Classroom Finder</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
-    body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    }
-    .search-box {
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
-    }
-    .search-box:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-    }
-    .btn-search {
-      background-color: #cc0000;
-      transition: all 0.3s ease;
-    }
-    .btn-search:hover {
-      background-color: #aa0000;
-    }
-    .result-card {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.5s ease;
-    }
-    .result-card.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .easter-egg {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      animation: fadeIn 0.5s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes dance {
-      0% { transform: translateY(0) rotate(0deg); }
-      25% { transform: translateY(-20px) rotate(10deg); }
-      50% { transform: translateY(0) rotate(0deg); }
-      75% { transform: translateY(-10px) rotate(-10deg); }
-      100% { transform: translateY(0) rotate(0deg); }
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-    .taco {
-      animation: dance 1.5s infinite;
-      font-size: 70px;
-      display: inline-block;
-      margin: 0 15px;
-    }
-    .taco:nth-child(2) { animation-delay: 0.2s; }
-    .taco:nth-child(3) { animation-delay: 0.4s; }
-    .taco:nth-child(4) { animation-delay: 0.6s; }
-    .taco:nth-child(5) { animation-delay: 0.8s; }
-    .taco-stage {
-      position: relative;
-      width: 100%;
-      height: 200px;
-      overflow: hidden;
-    }
-    .lyrics {
-      animation: bounce 1s infinite;
-      display: inline-block;
-    }
-    .table-header {
-      background-color: #cc0000;
-      color: white;
-      font-weight: bold;
-    }
-    .table-row {
-      transition: all 0.2s ease;
-    }
-    .table-row:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="min-h-screen flex flex-col items-center justify-center p-4 md:p-2">
 
   <!-- Easter Egg -->
-
   <div id="easterEgg" class="easter-egg">
     <div class="text-center p-6 relative">
       <div id="tacoStage" class="taco-stage mb-6">
@@ -131,15 +35,32 @@
     </div>
   </div>
 
-  <!-- Header -->
+  <!-- Info Modal -->
+  <div id="infoModal" class="info-modal">
+    <div class="info-modal-box">
+      <button id="closeInfoModal" class="info-modal-close">✕</button>
+      <p class="info-modal-label">Developed by students in</p>
+      <p class="info-modal-class">Ms. Whitby's Computer Science Class</p>
+      <ul class="info-modal-names">
+        <li>Savoy Richardson <span class="cohort">'26</span></li>
+        <li>Lillyanna Terry <span class="cohort">'25</span></li>
+        <li>Terrell Harris <span class="cohort">'25</span></li>
+        <li>Edward Chun <span class="cohort">'26</span></li>
+        <li>Aiden Sanchez <span class="cohort">'27</span></li>
+        <li>Damien Ramirez <span class="cohort">'26</span></li>
+      </ul>
+      <p class="info-modal-school">Wagner High School · Judson ISD</p>
+    </div>
+  </div>
 
-  <div class="w-full max-w-4xl text-center mb-8">
+  <!-- Header -->
+  <div class="w-full max-w-4xl text-center mb-8 relative">
     <h1 id="mainTitle" class="text-4xl md:text-5xl font-bold text-red-600 mb-2 cursor-pointer">Testing Room Finder</h1>
     <p class="text-gray-300 text-lg md:text-xl">Enter your Student ID number to find your assigned room</p>
+    <button id="infoBtn" class="info-btn" title="About this app">ℹ</button>
   </div>
 
   <!-- Search Box -->
-
   <div class="search-box w-full max-w-2xl bg-white rounded-lg p-6 md:p-8">
     <div class="flex flex-col md:flex-row gap-4">
       <input type="text" id="classroomCode" placeholder="Enter your StudentID number (e.g. 1234)"
@@ -156,7 +77,6 @@
   </div>
 
   <!-- Result Card -->
-
   <div id="resultCard" class="result-card w-full max-w-4xl mt-8 bg-black bg-opacity-80 rounded-lg p-6 hidden">
     <div class="flex items-center border-b border-red-600 pb-4 mb-6">
       <div class="bg-red-600 rounded-full p-3 mr-4">
@@ -169,18 +89,18 @@
         <p class="text-gray-400">Student ID #: <span id="StudentIDValue"></span></p>
       </div>
     </div>
-    <div class="overflow-x-auto">
+
+    <!-- Mobile Cards (hidden on md+) -->
+    <div id="mobileCards" class="block md:hidden"></div>
+
+    <!-- Desktop Table (hidden on mobile) -->
+    <div class="hidden md:block overflow-x-auto">
       <table class="w-full text-left">
-        <thead>
-          <tr>
-            <th class="table-header px-4 py-3 rounded-tl-lg">Date</th>
-            <th class="table-header px-4 py-3">Activity</th>
-            <th class="table-header px-4 py-3 rounded-tr-lg">Room</th>
-          </tr>
-        </thead>
+        <thead id="tableHead"></thead>
         <tbody id="resultTableBody"></tbody>
       </table>
     </div>
+
     <button id="newSearchBtn" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition-colors mt-6">
       New Search
     </button>
@@ -188,135 +108,6 @@
 
 </div>
 
-<script>
-  const APPS_SCRIPT_URL = 'https://us-central1-hall-pass-app-d6541.cloudfunctions.net/get_student_rooms_http';
-
-  const searchBtn = document.getElementById('searchBtn');
-  const newSearchBtn = document.getElementById('newSearchBtn');
-  const classroomCodeInput = document.getElementById('classroomCode');
-  const resultCard = document.getElementById('resultCard');
-  const errorMessage = document.getElementById('errorMessage');
-  const loadingMessage = document.getElementById('loadingMessage');
-  const mainTitle = document.getElementById('mainTitle');
-  const easterEgg = document.getElementById('easterEgg');
-  const closeEasterEgg = document.getElementById('closeEasterEgg');
-  const resultTableBody = document.getElementById('resultTableBody');
-
-  // Easter egg
-  let clickCount = 0;
-  mainTitle.addEventListener('click', function () {
-    clickCount++;
-    if (clickCount >= 5) {
-      easterEgg.style.display = 'flex';
-      clickCount = 0;
-    }
-  });
-  closeEasterEgg.addEventListener('click', function () {
-    easterEgg.style.display = 'none';
-  });
-
-  // Search
-  searchBtn.addEventListener('click', function () {
-    const studentID = classroomCodeInput.value.trim();
-    if (studentID === '') {
-      showError('Please enter your StudentID number');
-      return;
-    }
-    hideMessages();
-    showLoading();
-    searchBtn.disabled = true;
-    searchBtn.textContent = 'Searching...';
-
-    fetch(`${APPS_SCRIPT_URL}?studentID=${encodeURIComponent(studentID)}`)
-      .then(res => res.json())
-      .then(result => {
-        if (!result.success) {
-          if (result.error === 'Student ID not found') {
-            onFailure('Student ID not found. Please check your number and try again.');
-          } else if (result.error === 'No upcoming tests found') {
-            onFailure('No upcoming test assignments found for your Student ID.');
-          } else {
-            onFailure(result.error);
-          }
-          return;
-        }
-
-        const data = result.data;
-        onSuccess({
-          studentName: data.name,
-          studentID: data.studentId,
-          assignments: data.assignments
-        });
-      })
-      .catch(err => onFailure(err));
-  });
-
-  function onSuccess(data) {
-    hideMessages();
-    searchBtn.disabled = false;
-    searchBtn.textContent = 'Find Room';
-
-    if (!data || !data.studentName || !data.assignments || data.assignments.length === 0) {
-      showError('No test assignments found for this Student ID. Please check your number and try again.');
-      return;
-    }
-
-    resultTableBody.innerHTML = '';
-    document.getElementById('studentName').textContent = data.studentName;
-    document.getElementById('StudentIDValue').textContent = data.studentID;
-
-    data.assignments.forEach(assignment => {
-      const row = document.createElement('tr');
-      row.className = 'table-row';
-      row.innerHTML = `
-        <td class="px-4 py-3 text-gray-300 border-t border-gray-800">${assignment.displayDate || assignment.testDate}</td>
-        <td class="px-4 py-3 text-gray-300 border-t border-gray-800">${assignment.testName}</td>
-        <td class="px-4 py-3 text-gray-300 border-t border-gray-800">${assignment.room}</td>
-      `;
-      resultTableBody.appendChild(row);
-    });
-
-    resultCard.classList.remove('hidden');
-    setTimeout(() => resultCard.classList.add('show'), 10);
-    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function onFailure(error) {
-    hideMessages();
-    searchBtn.disabled = false;
-    searchBtn.textContent = 'Find Room';
-    console.error('Error:', error);
-    showError(typeof error === 'string' ? error : 'An error occurred while searching. Please try again.');
-  }
-
-  newSearchBtn.addEventListener('click', function () {
-    resultCard.classList.remove('show');
-    setTimeout(() => {
-      resultCard.classList.add('hidden');
-      classroomCodeInput.value = '';
-      classroomCodeInput.focus();
-      hideMessages();
-    }, 300);
-  });
-
-  function showError(message) {
-    hideMessages();
-    errorMessage.textContent = message;
-    errorMessage.classList.remove('hidden');
-  }
-  function showLoading() {
-    hideMessages();
-    loadingMessage.classList.remove('hidden');
-  }
-  function hideMessages() {
-    errorMessage.classList.add('hidden');
-    loadingMessage.classList.add('hidden');
-  }
-
-  classroomCodeInput.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') searchBtn.click();
-  });
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
