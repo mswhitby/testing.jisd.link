@@ -41,7 +41,6 @@ closeEasterEgg.addEventListener('click', function () {
 });
 
 // ── Time formatting ─────────────────────────────────────
-// Always returns "8:00 AM" / "12:00 PM" style
 function formatTime(minutes) {
   if (minutes === null || minutes === undefined || minutes === '') return '';
   const h24 = Math.floor(minutes / 60);
@@ -70,7 +69,6 @@ searchBtn.addEventListener('click', function () {
     return;
   }
 
-  // Always clear previous results immediately before new search
   clearResults();
   hideMessages();
   showLoading();
@@ -113,18 +111,17 @@ function onSuccess(data) {
   document.getElementById('studentName').textContent = data.studentName;
   document.getElementById('StudentIDValue').textContent = data.studentID;
 
-  // Determine if any assignment has a time
   const hasAnyTime = data.assignments.some(
     a => a.timeMinutes !== null && a.timeMinutes !== undefined && a.timeMinutes !== ''
   );
 
-  // ── Desktop table header: Date | Time | Activity | Room ──
+  // Desktop table header: Date | Time | Activity | Room (all left aligned, room gray)
   tableHead.innerHTML = `
     <tr>
       <th class="table-header px-4 py-3 rounded-tl-lg">Date</th>
-      ${hasAnyTime ? '<th class="table-header px-4 py-3 text-right">Time</th>' : ''}
+      ${hasAnyTime ? '<th class="table-header px-4 py-3 table-time">Time</th>' : ''}
       <th class="table-header px-4 py-3">Activity</th>
-      <th class="table-header px-4 py-3 rounded-tr-lg text-right">Room</th>
+      <th class="table-header px-4 py-3 rounded-tr-lg">Room</th>
     </tr>
   `;
 
@@ -134,32 +131,29 @@ function onSuccess(data) {
     const room = assignment.room;
     const timeStr = formatTime(assignment.timeMinutes);
 
-    // Desktop table row
+    // Desktop table row — room gray like other columns
     const row = document.createElement('tr');
     row.className = 'table-row';
     row.innerHTML = `
       <td class="px-4 py-3 text-gray-300 border-t border-gray-800 whitespace-nowrap">${date}</td>
       ${hasAnyTime ? `<td class="px-4 py-3 text-gray-300 border-t border-gray-800 table-time">${timeStr}</td>` : ''}
       <td class="px-4 py-3 text-gray-300 border-t border-gray-800">${activity}</td>
-      <td class="px-4 py-3 border-t border-gray-800 table-room">${room}</td>
+      <td class="px-4 py-3 text-gray-300 border-t border-gray-800">${room}</td>
     `;
     resultTableBody.appendChild(row);
 
-    // Mobile card: Activity on top, then date · time · room inline
-    const metaParts = [date];
-    if (hasAnyTime && timeStr) metaParts.push(timeStr);
-    // room always last, rendered in red separately
-    const metaHtml = metaParts.map(p =>
-      `<span>${p}</span>`
-    ).join('<span class="card-meta-sep">·</span>') +
-      '<span class="card-meta-sep">·</span>' +
-      `<span class="card-room">${room}</span>`;
+    // Mobile card: Activity bold, then date · time · room on one line
+    const metaParts = [`<span>${date}</span>`];
+    if (hasAnyTime && timeStr) {
+      metaParts.push(`<span class="card-meta-sep">·</span><span>${timeStr}</span>`);
+    }
+    metaParts.push(`<span class="card-meta-sep">·</span><span class="card-room">${room}</span>`);
 
     const card = document.createElement('div');
     card.className = 'assignment-card';
     card.innerHTML = `
       <div class="card-activity">${activity}</div>
-      <div class="card-meta">${metaHtml}</div>
+      <div class="card-meta">${metaParts.join('')}</div>
     `;
     mobileCards.appendChild(card);
   });
@@ -177,7 +171,6 @@ function onFailure(error) {
   showError(typeof error === 'string' ? error : 'An error occurred while searching. Please try again.');
 }
 
-// New Search button
 newSearchBtn.addEventListener('click', function () {
   clearResults();
   classroomCodeInput.value = '';
