@@ -119,9 +119,9 @@ function onSuccess(data) {
     resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     // Show message where cards/table would be
-    mobileCards.innerHTML = `<p class="no-assignments">No upcoming test assignments found.</p>`;
+    mobileCards.innerHTML = `<p class="no-assignments">No upcoming tests found.</p>`;
     tableHead.innerHTML = '';
-    resultTableBody.innerHTML = `<tr><td colspan="4" class="no-assignments-desktop">No upcoming test assignments found.</td></tr>`;
+    resultTableBody.innerHTML = `<tr><td colspan="4" class="no-assignments">No upcoming tests found.</td></tr>`;
     return;
   }
 
