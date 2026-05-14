@@ -99,10 +99,15 @@ function onSuccess(data) {
   searchBtn.disabled = false;
   searchBtn.textContent = 'Find Room';
 
-  if (!data || !data.studentName || !data.assignments || data.assignments.length === 0) {
+  if (!data || !data.studentName) {
     showError('No upcoming test assignments found for your Student ID.');
     return;
   }
+
+//   if (!data || !data.studentName || !data.assignments || data.assignments.length === 0) {
+//     showError('No upcoming test assignments found for your Student ID.');
+//     return;
+//   }
 
   document.getElementById('studentName').textContent = data.studentName;
   document.getElementById('StudentIDValue').textContent = data.studentID;
