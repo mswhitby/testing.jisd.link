@@ -65,7 +65,7 @@ function clearResults() {
 searchBtn.addEventListener('click', function () {
   const studentID = classroomCodeInput.value.trim();
   if (studentID === '') {
-    showError('Please enter your StudentID number');
+    showError('Please enter your Student ID number');
     return;
   }
 
@@ -82,7 +82,7 @@ searchBtn.addEventListener('click', function () {
         if (result.error === 'Student ID not found') {
           onFailure('Student ID not found. Please check your number and try again.');
         } else if (result.error === 'No upcoming tests found') {
-          onFailure('No upcoming test assignments found for your Student ID.');
+          onFailure(`No upcoming test assignments found for your ${result.name}`);
         } else {
           onFailure(result.error);
         }
