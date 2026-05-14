@@ -104,11 +104,6 @@ function onSuccess(data) {
     return;
   }
 
-//   if (!data || !data.studentName || !data.assignments || data.assignments.length === 0) {
-//     showError('No upcoming test assignments found for your Student ID.');
-//     return;
-//   }
-
   document.getElementById('studentName').textContent = data.studentName;
   document.getElementById('StudentIDValue').textContent = data.studentID;
 
