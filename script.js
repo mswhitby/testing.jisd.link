@@ -129,7 +129,7 @@ function onSuccess(data) {
 
   data.assignments.forEach(assignment => {
     const date = assignment.displayDate || assignment.testDate;
-    const activity = assignment.test;
+    const activity = assignment.testName;
     const room = assignment.room;
     const timeStr = hasAnyTime ? formatTime(assignment.timeMinutes, useShortTime) : '';
 
