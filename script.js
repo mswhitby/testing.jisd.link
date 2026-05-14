@@ -82,7 +82,7 @@ searchBtn.addEventListener('click', function () {
         if (result.error === 'Student ID not found') {
           onFailure('Student ID not found. Please check your number and try again.');
         } else if (result.error === 'No upcoming tests found') {
-          onFailure(`No upcoming test assignments found for your ${result.name}`);
+          onFailure(`No upcoming test assignments found for your ${result.data.name}`);
         } else {
           onFailure(result.error);
         }
