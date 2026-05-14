@@ -115,7 +115,7 @@ function onSuccess(data) {
     a => a.timeMinutes !== null && a.timeMinutes !== undefined && a.timeMinutes !== ''
   );
 
-  // Desktop table header: Date | Time | Activity | Room (all left aligned, room gray)
+  // Desktop table header: Date | Time | Activity | Room
   tableHead.innerHTML = `
     <tr>
       <th class="table-header px-4 py-3 rounded-tl-lg">Date</th>
@@ -131,7 +131,7 @@ function onSuccess(data) {
     const room = assignment.room;
     const timeStr = formatTime(assignment.timeMinutes);
 
-    // Desktop table row — room gray like other columns
+    // Desktop table row
     const row = document.createElement('tr');
     row.className = 'table-row';
     row.innerHTML = `
@@ -142,19 +142,31 @@ function onSuccess(data) {
     `;
     resultTableBody.appendChild(row);
 
-    // Mobile card: Activity bold, then date · time · room on one line
-    const metaParts = [`<span>${date}</span>`];
-    if (hasAnyTime && timeStr) {
-      metaParts.push(`<span class="card-meta-sep">·</span><span>${timeStr}</span>`);
-    }
-    metaParts.push(`<span class="card-meta-sep">·</span><span class="card-room">${room}</span>`);
-
+    // Mobile card
     const card = document.createElement('div');
     card.className = 'assignment-card';
-    card.innerHTML = `
-      <div class="card-activity">${activity}</div>
-      <div class="card-meta">${metaParts.join('')}</div>
-    `;
+
+    if (hasAnyTime) {
+      // Three columns: date left | time center | room right
+      card.innerHTML = `
+        <div class="card-activity">${activity}</div>
+        <div class="card-meta">
+          <span class="card-meta-date">${date}</span>
+          <span class="card-meta-time">${timeStr}</span>
+          <span class="card-meta-room">${room}</span>
+        </div>
+      `;
+    } else {
+      // Two columns: date left | room right
+      card.innerHTML = `
+        <div class="card-activity">${activity}</div>
+        <div class="card-meta no-time">
+          <span class="card-meta-date">${date}</span>
+          <span class="card-meta-room">${room}</span>
+        </div>
+      `;
+    }
+
     mobileCards.appendChild(card);
   });
 
