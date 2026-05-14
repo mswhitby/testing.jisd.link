@@ -41,20 +41,25 @@ closeEasterEgg.addEventListener('click', function () {
 });
 
 // ── Time formatting ─────────────────────────────────────
-function formatTime(minutes, useShort) {
-  if (minutes === null || minutes === undefined) return '';
+// Always returns "8:00 AM" / "12:00 PM" style
+function formatTime(minutes) {
+  if (minutes === null || minutes === undefined || minutes === '') return '';
   const h24 = Math.floor(minutes / 60);
   const min = minutes % 60;
   const ampm = h24 < 12 ? 'AM' : 'PM';
   const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return `${h12}:${String(min).padStart(2, '0')} ${ampm}`;
+}
 
-  if (useShort) {
-    // e.g. "8 AM" or "12 PM"
-    return `${h12} ${ampm}`;
-  } else {
-    // e.g. "8:00 AM" or "12:30 PM"
-    return `${h12}:${String(min).padStart(2, '0')} ${ampm}`;
-  }
+// ── Clear results ───────────────────────────────────────
+function clearResults() {
+  resultTableBody.innerHTML = '';
+  mobileCards.innerHTML = '';
+  tableHead.innerHTML = '';
+  document.getElementById('studentName').textContent = '';
+  document.getElementById('StudentIDValue').textContent = '';
+  resultCard.classList.remove('show');
+  resultCard.classList.add('hidden');
 }
 
 // ── Search ──────────────────────────────────────────────
@@ -64,6 +69,9 @@ searchBtn.addEventListener('click', function () {
     showError('Please enter your StudentID number');
     return;
   }
+
+  // Always clear previous results immediately before new search
+  clearResults();
   hideMessages();
   showLoading();
   searchBtn.disabled = true;
@@ -102,28 +110,21 @@ function onSuccess(data) {
     return;
   }
 
-  // Clear previous results
-  resultTableBody.innerHTML = '';
-  mobileCards.innerHTML = '';
-
   document.getElementById('studentName').textContent = data.studentName;
   document.getElementById('StudentIDValue').textContent = data.studentID;
 
   // Determine if any assignment has a time
-  const hasAnyTime = data.assignments.some(a => a.timeMinutes !== null && a.timeMinutes !== undefined);
+  const hasAnyTime = data.assignments.some(
+    a => a.timeMinutes !== null && a.timeMinutes !== undefined && a.timeMinutes !== ''
+  );
 
-  // Determine if all times are on the hour (for short vs long format)
-  const useShortTime = hasAnyTime && data.assignments
-    .filter(a => a.timeMinutes !== null && a.timeMinutes !== undefined)
-    .every(a => a.timeMinutes % 60 === 0);
-
-  // Update desktop table header
+  // ── Desktop table header: Date | Time | Activity | Room ──
   tableHead.innerHTML = `
     <tr>
       <th class="table-header px-4 py-3 rounded-tl-lg">Date</th>
+      ${hasAnyTime ? '<th class="table-header px-4 py-3 text-right">Time</th>' : ''}
       <th class="table-header px-4 py-3">Activity</th>
-      ${hasAnyTime ? '<th class="table-header px-4 py-3">Time</th>' : ''}
-      <th class="table-header px-4 py-3 rounded-tr-lg">Room</th>
+      <th class="table-header px-4 py-3 rounded-tr-lg text-right">Room</th>
     </tr>
   `;
 
@@ -131,29 +132,34 @@ function onSuccess(data) {
     const date = assignment.displayDate || assignment.testDate;
     const activity = assignment.testName;
     const room = assignment.room;
-    const timeStr = hasAnyTime ? formatTime(assignment.timeMinutes, useShortTime) : '';
+    const timeStr = formatTime(assignment.timeMinutes);
 
     // Desktop table row
     const row = document.createElement('tr');
     row.className = 'table-row';
     row.innerHTML = `
-      <td class="px-4 py-3 text-gray-300 border-t border-gray-800">${date}</td>
+      <td class="px-4 py-3 text-gray-300 border-t border-gray-800 whitespace-nowrap">${date}</td>
+      ${hasAnyTime ? `<td class="px-4 py-3 text-gray-300 border-t border-gray-800 table-time">${timeStr}</td>` : ''}
       <td class="px-4 py-3 text-gray-300 border-t border-gray-800">${activity}</td>
-      ${hasAnyTime ? `<td class="px-4 py-3 text-gray-300 border-t border-gray-800">${timeStr}</td>` : ''}
-      <td class="px-4 py-3 text-gray-300 border-t border-gray-800">${room}</td>
+      <td class="px-4 py-3 border-t border-gray-800 table-room">${room}</td>
     `;
     resultTableBody.appendChild(row);
 
-    // Mobile card
+    // Mobile card: Activity on top, then date · time · room inline
+    const metaParts = [date];
+    if (hasAnyTime && timeStr) metaParts.push(timeStr);
+    // room always last, rendered in red separately
+    const metaHtml = metaParts.map(p =>
+      `<span>${p}</span>`
+    ).join('<span class="card-meta-sep">·</span>') +
+      '<span class="card-meta-sep">·</span>' +
+      `<span class="card-room">${room}</span>`;
+
     const card = document.createElement('div');
     card.className = 'assignment-card';
     card.innerHTML = `
-      <div class="card-date">${date}</div>
       <div class="card-activity">${activity}</div>
-      <div class="card-meta">
-        ${timeStr ? `<span class="card-time">${timeStr}</span>` : ''}
-        <span class="card-room">Room ${room}</span>
-      </div>
+      <div class="card-meta">${metaHtml}</div>
     `;
     mobileCards.appendChild(card);
   });
@@ -171,16 +177,13 @@ function onFailure(error) {
   showError(typeof error === 'string' ? error : 'An error occurred while searching. Please try again.');
 }
 
+// New Search button
 newSearchBtn.addEventListener('click', function () {
-  resultCard.classList.remove('show');
-  setTimeout(() => {
-    resultCard.classList.add('hidden');
-    resultTableBody.innerHTML = '';
-    mobileCards.innerHTML = '';
-    classroomCodeInput.value = '';
-    classroomCodeInput.focus();
-    hideMessages();
-  }, 300);
+  clearResults();
+  classroomCodeInput.value = '';
+  classroomCodeInput.focus();
+  hideMessages();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 function showError(message) {

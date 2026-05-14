@@ -39,82 +39,29 @@ body {
   transform: translateY(0);
 }
 
-/* ── Easter Egg ─────────────────────────────────── */
-.easter-egg {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes dance {
-  0%   { transform: translateY(0) rotate(0deg); }
-  25%  { transform: translateY(-20px) rotate(10deg); }
-  50%  { transform: translateY(0) rotate(0deg); }
-  75%  { transform: translateY(-10px) rotate(-10deg); }
-  100% { transform: translateY(0) rotate(0deg); }
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-20px); }
-}
-
-.taco {
-  animation: dance 1.5s infinite;
-  font-size: 70px;
-  display: inline-block;
-  margin: 0 15px;
-}
-
-.taco:nth-child(2) { animation-delay: 0.2s; }
-.taco:nth-child(3) { animation-delay: 0.4s; }
-.taco:nth-child(4) { animation-delay: 0.6s; }
-.taco:nth-child(5) { animation-delay: 0.8s; }
-
-.taco-stage {
+/* ── Header ─────────────────────────────────────── */
+.header-wrap {
   position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-}
-
-.lyrics {
-  animation: bounce 1s infinite;
-  display: inline-block;
+  padding: 0 40px;
 }
 
 /* ── Info Button ────────────────────────────────── */
 .info-btn {
   position: absolute;
-  top: 0;
+  top: 4px;
   right: 0;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
 }
 
 .info-btn:hover {
@@ -189,7 +136,7 @@ body {
 .info-modal-names li {
   color: #d1d5db;
   font-size: 0.9rem;
-  padding: 5px 0;
+  padding: 6px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -208,10 +155,67 @@ body {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-top: 4px;
 }
 
-/* ── Table ──────────────────────────────────────── */
+/* ── Easter Egg ─────────────────────────────────── */
+.easter-egg {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes dance {
+  0%   { transform: translateY(0) rotate(0deg); }
+  25%  { transform: translateY(-20px) rotate(10deg); }
+  50%  { transform: translateY(0) rotate(0deg); }
+  75%  { transform: translateY(-10px) rotate(-10deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-20px); }
+}
+
+.taco {
+  animation: dance 1.5s infinite;
+  font-size: 70px;
+  display: inline-block;
+  margin: 0 15px;
+}
+
+.taco:nth-child(2) { animation-delay: 0.2s; }
+.taco:nth-child(3) { animation-delay: 0.4s; }
+.taco:nth-child(4) { animation-delay: 0.6s; }
+.taco:nth-child(5) { animation-delay: 0.8s; }
+
+.taco-stage {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.lyrics {
+  animation: bounce 1s infinite;
+  display: inline-block;
+}
+
+/* ── Desktop Table ──────────────────────────────── */
 .table-header {
   background-color: #cc0000;
   color: white;
@@ -226,61 +230,54 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+.table-room {
+  color: #cc0000;
+  font-weight: 600;
+  text-align: right;
+}
+
+.table-time {
+  text-align: right;
+  white-space: nowrap;
+}
+
 /* ── Mobile Cards ───────────────────────────────── */
 .assignment-card {
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(204, 0, 0, 0.3);
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 12px;
-  transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  transition: background 0.2s ease;
 }
 
 .assignment-card:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(204, 0, 0, 0.6);
+  background-color: rgba(255, 255, 255, 0.07);
 }
 
-.assignment-card .card-date {
-  font-size: 0.75rem;
-  color: #cc0000;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
-}
-
-.assignment-card .card-activity {
-  font-size: 1.05rem;
+.card-activity {
+  font-size: 1rem;
   color: #ffffff;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
+  line-height: 1.3;
 }
 
-.assignment-card .card-meta {
+.card-meta {
+  font-size: 0.82rem;
+  color: #9ca3af;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
   flex-wrap: wrap;
 }
 
-.assignment-card .card-time {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.1);
-  color: #d1d5db;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.card-meta-sep {
+  margin: 0 6px;
+  opacity: 0.4;
 }
 
-.assignment-card .card-room {
-  display: inline-block;
-  background-color: #cc0000;
-  color: white;
-  font-size: 0.85rem;
-  font-weight: bold;
-  padding: 3px 10px;
-  border-radius: 20px;
+.card-room {
+  color: #cc0000;
+  font-weight: 600;
 }
