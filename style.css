@@ -292,3 +292,16 @@ body {
   font-weight: 600;
   white-space: nowrap;
 }
+
+.no-assignments {
+  color: #6b7280;
+  font-size: 0.9rem;
+  padding: 12px 0;
+}
+
+.no-assignments-desktop {
+  color: #6b7280;
+  font-size: 0.9rem;
+  padding: 16px;
+  text-align: center;
+}
