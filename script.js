@@ -78,22 +78,18 @@ searchBtn.addEventListener('click', function () {
   fetch(`${APPS_SCRIPT_URL}?studentID=${encodeURIComponent(studentID)}`)
     .then(res => res.json())
     .then(result => {
-      if (!result.success) {
-        if (result.error === 'Student ID not found') {
+        if (!result.success) {
           onFailure('Student ID not found. Please check your number and try again.');
-        } else if (result.error === 'No upcoming tests found') {
-          onFailure(`No upcoming test assignments found for ${result.data.name}`);
-        } else {
-          onFailure(result.error);
+          return;
         }
-        return;
-      }
-      const data = result.data;
-      onSuccess({
-        studentName: data.name,
-        studentID: data.studentId,
-        assignments: data.assignments
-      });
+        
+        const data = result.data;
+        onSuccess({
+            studentName: data.name,
+            studentID: data.studentId,
+            assignments: data.assignments || [],
+            roomsFound: result.rooms_found
+        });
     })
     .catch(err => onFailure(err));
 });
@@ -110,6 +106,19 @@ function onSuccess(data) {
 
   document.getElementById('studentName').textContent = data.studentName;
   document.getElementById('StudentIDValue').textContent = data.studentID;
+
+  if (!data.roomsFound) {
+    // Show student header but no table
+    resultCard.classList.remove('hidden');
+    setTimeout(() => resultCard.classList.add('show'), 10);
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Show message where cards/table would be
+    mobileCards.innerHTML = `<p class="no-assignments">No upcoming test assignments found.</p>`;
+    tableHead.innerHTML = '';
+    resultTableBody.innerHTML = `<tr><td colspan="4" class="no-assignments-desktop">No upcoming test assignments found.</td></tr>`;
+    return;
+  }
 
   const hasAnyTime = data.assignments.some(
     a => a.timeMinutes !== null && a.timeMinutes !== undefined && a.timeMinutes !== ''
