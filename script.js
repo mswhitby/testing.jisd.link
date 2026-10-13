@@ -1,5 +1,6 @@
-const APPS_SCRIPT_URL = 'https://us-central1-hall-pass-app-d6541.cloudfunctions.net/get_student_rooms_http';
-
+// const APPS_SCRIPT_URL = 'https://us-central1-hall-pass-app-d6541.cloudfunctions.net/get_student_rooms_http';
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFj5hfjmGJu7QUU4nTCgX3yZ68JfJpGKCfPahMJ0C9x3QlB9URMg_qjG6rrYyWAwe1UA/exec"
+  
 const searchBtn = document.getElementById('searchBtn');
 const newSearchBtn = document.getElementById('newSearchBtn');
 const classroomCodeInput = document.getElementById('classroomCode');
@@ -75,7 +76,7 @@ searchBtn.addEventListener('click', function () {
   searchBtn.disabled = true;
   searchBtn.textContent = 'Searching...';
 
-  fetch(`${APPS_SCRIPT_URL}?studentID=${encodeURIComponent(studentID)}`)
+  fetch(`${APPS_SCRIPT_URL}?github=true&studentID=${encodeURIComponent(studentID)}`)
     .then(res => res.json())
     .then(result => {
         if (!result.success) {
