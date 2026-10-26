@@ -4,21 +4,24 @@ const studentIDInput = document.getElementById('studentID');
 const lookupBtn = document.getElementById('lookupBtn');
 const lookupMessage = document.getElementById('lookupMessage');
 const assignmentPanel = document.getElementById('assignmentPanel');
-const successPanel = document.getElementById('successPanel');
 const morningCheckInBtn = document.getElementById('morningCheckInBtn');
 const afterLunchCheckInBtn = document.getElementById('afterLunchCheckInBtn');
 const newLookupBtn = document.getElementById('newLookupBtn');
-const finishBtn = document.getElementById('finishBtn');
 const checkInMessage = document.getElementById('checkInMessage');
+const checkInStatus = document.getElementById('checkInStatus');
+const morningStatus = document.getElementById('morningStatus');
+const afterLunchStatus = document.getElementById('afterLunchStatus');
+const afterLunchStatusRow = document.getElementById('afterLunchStatusRow');
+const lunchTimeMessage = document.getElementById('lunchTimeMessage');
 
 let selectedStudent = null;
 let selectedAssignment = null;
+let attendanceStatus = null;
 
 lookupBtn.addEventListener('click', lookupGymAssignment);
 morningCheckInBtn.addEventListener('click', () => submitGymCheckIn('morning'));
 afterLunchCheckInBtn.addEventListener('click', () => submitGymCheckIn('afterLunch'));
 newLookupBtn.addEventListener('click', resetGymPage);
-finishBtn.addEventListener('click', resetGymPage);
 studentIDInput.addEventListener('keydown', event => {
   if (event.key === 'Enter') lookupGymAssignment();
 });
@@ -35,8 +38,6 @@ async function lookupGymAssignment() {
   hideLookupMessage();
   assignmentPanel.classList.add('hidden');
   assignmentPanel.classList.remove('show');
-  successPanel.classList.add('hidden');
-  successPanel.classList.remove('show');
 
   try {
     const url = `${GYM_API_URL}?github=true&studentID=${encodeURIComponent(studentID)}&_=${Date.now()}`;
@@ -75,12 +76,34 @@ async function lookupGymAssignment() {
 
     selectedStudent = result.data;
     selectedAssignment = gymAssignments[0];
+    attendanceStatus = await loadGymStatus();
     showAssignment();
   } catch (error) {
     showLookupMessage(error.message || 'Unable to load your assignment. Please try again.', 'error');
   } finally {
     setLookupLoading(false);
   }
+}
+
+async function loadGymStatus() {
+  const params = new URLSearchParams({
+    action: 'gymStatus',
+    studentID: selectedStudent.studentId,
+    testDate: selectedAssignment.testDate,
+    github: 'true',
+    _: Date.now().toString()
+  });
+  const response = await fetch(`${GYM_API_URL}?${params.toString()}`, {
+    cache: 'no-store'
+  });
+  const result = await response.json();
+  console.log('Gym attendance status response:', result);
+
+  if (!result.success || result.code !== 'STATUS_FOUND' || !result.data) {
+    throw new Error(result.message || 'Unable to load current check-in status.');
+  }
+
+  return result.data;
 }
 
 function showAssignment() {
@@ -91,13 +114,63 @@ function showAssignment() {
   document.getElementById('testRoom').textContent = selectedAssignment.room;
 
   checkInMessage.classList.add('hidden');
+  renderAttendanceStatus();
   assignmentPanel.classList.remove('hidden');
   setTimeout(() => assignmentPanel.classList.add('show'), 10);
   assignmentPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function renderAttendanceStatus() {
+  if (!attendanceStatus) return;
+
+  const afterLunchIsOpen = attendanceStatus.activeSession === 'afterLunch';
+  const morningTime = attendanceStatus.morningCheckIn;
+  const afterLunchTime = attendanceStatus.afterLunchCheckIn;
+
+  checkInStatus.classList.remove('hidden');
+  morningStatus.textContent = morningTime
+    ? `Checked in at ${morningTime}`
+    : afterLunchIsOpen
+      ? 'Not checked in'
+      : 'Available';
+  morningStatus.className = morningTime
+    ? 'font-bold text-green-400'
+    : 'font-bold text-gray-300';
+
+  morningCheckInBtn.disabled = Boolean(morningTime) || afterLunchIsOpen;
+  morningCheckInBtn.textContent = morningTime
+    ? `Morning: ${morningTime}`
+    : afterLunchIsOpen
+      ? 'Morning Check-In Closed'
+      : 'Morning Check-In';
+  morningCheckInBtn.classList.toggle('opacity-50', morningCheckInBtn.disabled);
+  morningCheckInBtn.classList.toggle('cursor-not-allowed', morningCheckInBtn.disabled);
+
+  afterLunchCheckInBtn.classList.toggle('hidden', !afterLunchIsOpen);
+  afterLunchStatusRow.classList.toggle('hidden', !afterLunchIsOpen);
+
+  if (afterLunchIsOpen) {
+    afterLunchStatus.textContent = afterLunchTime
+      ? `Checked in at ${afterLunchTime}`
+      : 'Available';
+    afterLunchStatus.className = afterLunchTime
+      ? 'font-bold text-green-400'
+      : 'font-bold text-gray-300';
+    afterLunchCheckInBtn.disabled = Boolean(afterLunchTime);
+    afterLunchCheckInBtn.textContent = afterLunchTime
+      ? `After Lunch: ${afterLunchTime}`
+      : 'After Lunch Check-In';
+    afterLunchCheckInBtn.classList.toggle('opacity-50', afterLunchCheckInBtn.disabled);
+    afterLunchCheckInBtn.classList.toggle('cursor-not-allowed', afterLunchCheckInBtn.disabled);
+  }
+
+  lunchTimeMessage.textContent = afterLunchIsOpen
+    ? `After-lunch check-in opened at ${attendanceStatus.lunchTime}.`
+    : `After-lunch check-in opens at ${attendanceStatus.lunchTime}.`;
+}
+
 async function submitGymCheckIn(session) {
-  if (!selectedStudent || !selectedAssignment) return;
+  if (!selectedStudent || !selectedAssignment || !attendanceStatus) return;
 
   setCheckInLoading(true, session);
   checkInMessage.classList.add('hidden');
@@ -124,7 +197,18 @@ async function submitGymCheckIn(session) {
       throw new Error(result.message || 'Unable to complete your check-in.');
     }
 
-    showSuccess(result);
+    const statusField = session === 'morning'
+      ? 'morningCheckIn'
+      : 'afterLunchCheckIn';
+    attendanceStatus[statusField] = result.data.checkInTime;
+    renderAttendanceStatus();
+
+    const sessionLabel = session === 'morning' ? 'Morning' : 'After lunch';
+    checkInMessage.textContent = result.code === 'ALREADY_CHECKED_IN'
+      ? `${sessionLabel} check-in was already recorded at ${result.data.checkInTime}.`
+      : `${sessionLabel} check-in recorded at ${result.data.checkInTime}.`;
+    checkInMessage.className = 'mt-4 text-green-400 text-center font-bold';
+    checkInMessage.classList.remove('hidden');
   } catch (error) {
     console.error('Gym check-in failed:', error);
     checkInMessage.textContent = error.message || 'Unable to complete your check-in. Please ask a staff member for help.';
@@ -135,31 +219,16 @@ async function submitGymCheckIn(session) {
   }
 }
 
-function showSuccess(result) {
-  const data = result.data || {};
-  assignmentPanel.classList.add('hidden');
-  assignmentPanel.classList.remove('show');
-
-  document.getElementById('successName').textContent = data.name || selectedStudent.name;
-  document.getElementById('successDetails').textContent = `${data.testName || selectedAssignment.testName} · ${data.room || selectedAssignment.room}`;
-  const sessionLabel = data.session === 'afterLunch' ? 'After lunch' : 'Morning';
-  document.getElementById('successTime').textContent = result.code === 'ALREADY_CHECKED_IN'
-    ? `${sessionLabel} check-in was already recorded at ${data.checkInTime}`
-    : `${sessionLabel} check-in recorded at ${data.checkInTime}`;
-
-  successPanel.classList.remove('hidden');
-  setTimeout(() => successPanel.classList.add('show'), 10);
-  successPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
 function resetGymPage() {
   selectedStudent = null;
   selectedAssignment = null;
+  attendanceStatus = null;
   studentIDInput.value = '';
   assignmentPanel.classList.add('hidden');
   assignmentPanel.classList.remove('show');
-  successPanel.classList.add('hidden');
-  successPanel.classList.remove('show');
+  checkInStatus.classList.add('hidden');
+  afterLunchCheckInBtn.classList.add('hidden');
+  afterLunchStatusRow.classList.add('hidden');
   hideLookupMessage();
   studentIDInput.focus();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -171,14 +240,15 @@ function setLookupLoading(isLoading) {
 }
 
 function setCheckInLoading(isLoading, session) {
-  morningCheckInBtn.disabled = isLoading;
-  afterLunchCheckInBtn.disabled = isLoading;
-  morningCheckInBtn.textContent = isLoading && session === 'morning'
-    ? 'Checking In...'
-    : 'Morning Check-In';
-  afterLunchCheckInBtn.textContent = isLoading && session === 'afterLunch'
-    ? 'Checking In...'
-    : 'After Lunch Check-In';
+  if (isLoading) {
+    morningCheckInBtn.disabled = true;
+    afterLunchCheckInBtn.disabled = true;
+    if (session === 'morning') morningCheckInBtn.textContent = 'Checking In...';
+    if (session === 'afterLunch') afterLunchCheckInBtn.textContent = 'Checking In...';
+    return;
+  }
+
+  renderAttendanceStatus();
 }
 
 function showLookupMessage(message, type) {
