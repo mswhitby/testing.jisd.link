@@ -48,7 +48,10 @@
         </div>
       </div>
 
-      <button id="checkInBtn" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition-colors mt-6">Check In</button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
+        <button id="morningCheckInBtn" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition-colors">Morning Check-In</button>
+        <button id="afterLunchCheckInBtn" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition-colors">After Lunch Check-In</button>
+      </div>
       <button id="newLookupBtn" class="w-full bg-gray-700 text-white font-bold py-3 rounded-lg hover:bg-gray-600 transition-colors mt-3">Search Again</button>
       <div id="checkInMessage" class="hidden mt-4 text-red-400 text-center" role="status" aria-live="polite"></div>
     </section>
