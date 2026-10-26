@@ -115,6 +115,7 @@ async function submitGymCheckIn(session) {
       cache: 'no-store'
     });
     const result = await response.json();
+    console.log('Gym check-in API response:', result);
 
     if (
       !result.success ||
@@ -125,6 +126,7 @@ async function submitGymCheckIn(session) {
 
     showSuccess(result);
   } catch (error) {
+    console.error('Gym check-in failed:', error);
     checkInMessage.textContent = error.message || 'Unable to complete your check-in. Please ask a staff member for help.';
     checkInMessage.className = 'mt-4 text-red-400 text-center';
     checkInMessage.classList.remove('hidden');
