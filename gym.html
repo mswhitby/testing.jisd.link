@@ -50,19 +50,19 @@
 
       <div id="checkInStatus" class="mt-5 rounded-lg border border-gray-700 bg-gray-900 p-4 hidden">
         <div class="flex justify-between gap-4 text-gray-200">
-          <span>Morning</span>
+          <span id="morningStatusLabel">Check-In</span>
           <span id="morningStatus" class="font-bold"></span>
         </div>
         <div id="afterLunchStatusRow" class="flex justify-between gap-4 text-gray-200 mt-2 hidden">
           <span>After lunch</span>
           <span id="afterLunchStatus" class="font-bold"></span>
         </div>
-        <p id="lunchTimeMessage" class="text-gray-400 text-sm mt-3"></p>
+        <p id="lunchTimeMessage" class="text-gray-400 text-sm mt-3 hidden"></p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
-        <button id="morningCheckInBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">Morning Check-In</button>
-        <button id="afterLunchCheckInBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors hidden">After Lunch Check-In</button>
+        <button id="morningCheckInBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">Click to Check-In</button>
+        <button id="afterLunchCheckInBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors hidden">Click to Check-In</button>
       </div>
       <button id="newLookupBtn" class="w-full bg-gray-700 text-white font-bold py-3 rounded-lg hover:bg-gray-600 transition-colors mt-3">Search Again</button>
       <div id="checkInMessage" class="hidden mt-4 text-red-400 text-center" role="status" aria-live="polite"></div>
@@ -70,6 +70,6 @@
 
   </main>
 
-  <script src="gym.js?v=20261025-4"></script>
+  <script src="gym.js?v=20261026-1"></script>
 </body>
 </html>
