@@ -102,22 +102,24 @@ async function submitGymCheckIn(session) {
   setCheckInLoading(true, session);
   checkInMessage.classList.add('hidden');
 
-  const body = new URLSearchParams({
-    action: 'gymCheckIn',
-    studentID: selectedStudent.studentId,
-    testDate: selectedAssignment.testDate,
-    session: session,
-    github: 'true'
-  });
-
   try {
-    const response = await fetch(GYM_API_URL, {
-      method: 'POST',
-      body: body
+    const params = new URLSearchParams({
+      action: 'gymCheckIn',
+      studentID: selectedStudent.studentId,
+      testDate: selectedAssignment.testDate,
+      session: session,
+      github: 'true',
+      _: Date.now().toString()
+    });
+    const response = await fetch(`${GYM_API_URL}?${params.toString()}`, {
+      cache: 'no-store'
     });
     const result = await response.json();
 
-    if (!result.success) {
+    if (
+      !result.success ||
+      !['CHECKED_IN', 'ALREADY_CHECKED_IN'].includes(result.code)
+    ) {
       throw new Error(result.message || 'Unable to complete your check-in.');
     }
 
