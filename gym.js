@@ -9,6 +9,7 @@ const afterLunchCheckInBtn = document.getElementById('afterLunchCheckInBtn');
 const newLookupBtn = document.getElementById('newLookupBtn');
 const checkInMessage = document.getElementById('checkInMessage');
 const checkInStatus = document.getElementById('checkInStatus');
+const morningStatusLabel = document.getElementById('morningStatusLabel');
 const morningStatus = document.getElementById('morningStatus');
 const afterLunchStatus = document.getElementById('afterLunchStatus');
 const afterLunchStatusRow = document.getElementById('afterLunchStatusRow');
@@ -128,6 +129,7 @@ function renderAttendanceStatus() {
   const afterLunchTime = attendanceStatus.afterLunchCheckIn;
 
   checkInStatus.classList.remove('hidden');
+  morningStatusLabel.textContent = afterLunchIsOpen ? 'Morning' : 'Check-In';
   morningStatus.textContent = morningTime
     ? `Checked in at ${morningTime}`
     : afterLunchIsOpen
@@ -139,10 +141,10 @@ function renderAttendanceStatus() {
 
   morningCheckInBtn.disabled = Boolean(morningTime) || afterLunchIsOpen;
   morningCheckInBtn.textContent = morningTime
-    ? `Morning: ${morningTime}`
+    ? `Checked In at ${morningTime}`
     : afterLunchIsOpen
       ? 'Morning Check-In Closed'
-      : 'Morning Check-In';
+      : 'Click to Check-In';
   morningCheckInBtn.classList.toggle('opacity-50', morningCheckInBtn.disabled);
   morningCheckInBtn.classList.toggle('cursor-not-allowed', morningCheckInBtn.disabled);
 
@@ -158,15 +160,16 @@ function renderAttendanceStatus() {
       : 'font-bold text-gray-300';
     afterLunchCheckInBtn.disabled = Boolean(afterLunchTime);
     afterLunchCheckInBtn.textContent = afterLunchTime
-      ? `After Lunch: ${afterLunchTime}`
-      : 'After Lunch Check-In';
+      ? `Checked In at ${afterLunchTime}`
+      : 'Click to Check-In';
     afterLunchCheckInBtn.classList.toggle('opacity-50', afterLunchCheckInBtn.disabled);
     afterLunchCheckInBtn.classList.toggle('cursor-not-allowed', afterLunchCheckInBtn.disabled);
   }
 
+  lunchTimeMessage.classList.toggle('hidden', !afterLunchIsOpen);
   lunchTimeMessage.textContent = afterLunchIsOpen
     ? `After-lunch check-in opened at ${attendanceStatus.lunchTime}.`
-    : `After-lunch check-in opens at ${attendanceStatus.lunchTime}.`;
+    : '';
 }
 
 async function submitGymCheckIn(session) {
@@ -203,10 +206,10 @@ async function submitGymCheckIn(session) {
     attendanceStatus[statusField] = result.data.checkInTime;
     renderAttendanceStatus();
 
-    const sessionLabel = session === 'morning' ? 'Morning' : 'After lunch';
+    const sessionLabel = session === 'morning' ? 'Check-in' : 'After-lunch check-in';
     checkInMessage.textContent = result.code === 'ALREADY_CHECKED_IN'
-      ? `${sessionLabel} check-in was already recorded at ${result.data.checkInTime}.`
-      : `${sessionLabel} check-in recorded at ${result.data.checkInTime}.`;
+      ? `${sessionLabel} was already recorded at ${result.data.checkInTime}.`
+      : `${sessionLabel} recorded at ${result.data.checkInTime}.`;
     checkInMessage.className = 'mt-4 text-green-400 text-center font-bold';
     checkInMessage.classList.remove('hidden');
   } catch (error) {
@@ -229,6 +232,7 @@ function resetGymPage() {
   checkInStatus.classList.add('hidden');
   afterLunchCheckInBtn.classList.add('hidden');
   afterLunchStatusRow.classList.add('hidden');
+  lunchTimeMessage.classList.add('hidden');
   hideLookupMessage();
   studentIDInput.focus();
   window.scrollTo({ top: 0, behavior: 'smooth' });
