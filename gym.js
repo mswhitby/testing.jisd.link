@@ -67,12 +67,28 @@ async function lookupGymAssignment() {
       throw new Error('No active testing assignment was found for that Student ID.');
     }
 
-    const gymAssignments = assignments.filter(assignment =>
-      String(assignment.room || '').toLowerCase().includes('gym')
+    const chicagoDateParts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date());
+    const chicagoDate = Object.fromEntries(
+      chicagoDateParts.map(part => [part.type, part.value])
     );
+    const today = `${chicagoDate.year}-${chicagoDate.month}-${chicagoDate.day}`;
+    const gymAssignments = assignments.filter(assignment => {
+      const testDate = String(assignment.testDate || '').trim();
+      const isAllowedDate = testDate === today || (
+        today === '2026-10-26' && testDate === '2026-10-20'
+      );
+
+      return isAllowedDate &&
+        String(assignment.room || '').toLowerCase().includes('gym');
+    });
 
     if (gymAssignments.length === 0) {
-      throw new Error('You do not have an active testing assignment in the gym.');
+      throw new Error('You do not have a gym assignment available for today.');
     }
 
     selectedStudent = result.data;
