@@ -5,7 +5,8 @@ const lookupBtn = document.getElementById('lookupBtn');
 const lookupMessage = document.getElementById('lookupMessage');
 const assignmentPanel = document.getElementById('assignmentPanel');
 const successPanel = document.getElementById('successPanel');
-const checkInBtn = document.getElementById('checkInBtn');
+const morningCheckInBtn = document.getElementById('morningCheckInBtn');
+const afterLunchCheckInBtn = document.getElementById('afterLunchCheckInBtn');
 const newLookupBtn = document.getElementById('newLookupBtn');
 const finishBtn = document.getElementById('finishBtn');
 const checkInMessage = document.getElementById('checkInMessage');
@@ -14,7 +15,8 @@ let selectedStudent = null;
 let selectedAssignment = null;
 
 lookupBtn.addEventListener('click', lookupGymAssignment);
-checkInBtn.addEventListener('click', submitGymCheckIn);
+morningCheckInBtn.addEventListener('click', () => submitGymCheckIn('morning'));
+afterLunchCheckInBtn.addEventListener('click', () => submitGymCheckIn('afterLunch'));
 newLookupBtn.addEventListener('click', resetGymPage);
 finishBtn.addEventListener('click', resetGymPage);
 studentIDInput.addEventListener('keydown', event => {
@@ -94,17 +96,17 @@ function showAssignment() {
   assignmentPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-async function submitGymCheckIn() {
+async function submitGymCheckIn(session) {
   if (!selectedStudent || !selectedAssignment) return;
 
-  checkInBtn.disabled = true;
-  checkInBtn.textContent = 'Checking In...';
+  setCheckInLoading(true, session);
   checkInMessage.classList.add('hidden');
 
   const body = new URLSearchParams({
     action: 'gymCheckIn',
     studentID: selectedStudent.studentId,
     testDate: selectedAssignment.testDate,
+    session: session,
     github: 'true'
   });
 
@@ -125,8 +127,7 @@ async function submitGymCheckIn() {
     checkInMessage.className = 'mt-4 text-red-400 text-center';
     checkInMessage.classList.remove('hidden');
   } finally {
-    checkInBtn.disabled = false;
-    checkInBtn.textContent = 'Check In';
+    setCheckInLoading(false);
   }
 }
 
@@ -137,9 +138,10 @@ function showSuccess(result) {
 
   document.getElementById('successName').textContent = data.name || selectedStudent.name;
   document.getElementById('successDetails').textContent = `${data.testName || selectedAssignment.testName} · ${data.room || selectedAssignment.room}`;
+  const sessionLabel = data.session === 'afterLunch' ? 'After lunch' : 'Morning';
   document.getElementById('successTime').textContent = result.code === 'ALREADY_CHECKED_IN'
-    ? `Previously checked in at ${data.checkInTime}`
-    : `Checked in at ${data.checkInTime}`;
+    ? `${sessionLabel} check-in was already recorded at ${data.checkInTime}`
+    : `${sessionLabel} check-in recorded at ${data.checkInTime}`;
 
   successPanel.classList.remove('hidden');
   setTimeout(() => successPanel.classList.add('show'), 10);
@@ -162,6 +164,17 @@ function resetGymPage() {
 function setLookupLoading(isLoading) {
   lookupBtn.disabled = isLoading;
   lookupBtn.textContent = isLoading ? 'Searching...' : 'Find Assignment';
+}
+
+function setCheckInLoading(isLoading, session) {
+  morningCheckInBtn.disabled = isLoading;
+  afterLunchCheckInBtn.disabled = isLoading;
+  morningCheckInBtn.textContent = isLoading && session === 'morning'
+    ? 'Checking In...'
+    : 'Morning Check-In';
+  afterLunchCheckInBtn.textContent = isLoading && session === 'afterLunch'
+    ? 'Checking In...'
+    : 'After Lunch Check-In';
 }
 
 function showLookupMessage(message, type) {
